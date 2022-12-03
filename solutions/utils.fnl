@@ -22,7 +22,6 @@
   (accumulate [result true _ v (ipairs xs)]
     (and result v)))
 
-
 (fn range [start stop step]
   (var nums [])
   (for [i start stop (or step 1)]
@@ -30,15 +29,26 @@
   nums)
 
 (fn sorted [tbl]
-  (let [copy (icollect [_ v (ipairs tbl)] v)]
+  (let [copy (icollect [_ v (ipairs tbl)]
+               v)]
     (table.sort copy)
     copy))
 
 (fn max [tbl]
-  (let [copy (icollect [_ v (ipairs tbl)] v)]
+  (let [copy (icollect [_ v (ipairs tbl)]
+               v)]
     (table.sort copy)
     (. copy (length copy))))
 
+(fn sum [tbl]
+  (accumulate [total 0 _ v (ipairs tbl)]
+    (+ total v)))
 
+(fn counter [tbl]
+  "Count the occurrences of each element of tbl and return this as a kv tbl"
+  (let [cnts {}]
+    (each [_ v (ipairs tbl)]
+      (if (. cnts v) (tset cnts v (+ (. cnts v) 1)) (tset cnts v 1)))
+    cnts))
 
-{: request : get-contents : any : all : range : max : sorted}
+{: request : get-contents : any : all : range : max : sorted : sum : counter}
