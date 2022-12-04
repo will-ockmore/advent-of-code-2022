@@ -16,16 +16,17 @@
           [second_i second_j] second]
       (if (or (and (>= first_j second_j) (<= first_i second_i))
               (and (>= second_j first_j) (<= second_i first_i)))
-          (+ sum 1) sum))))
+          (+ sum 1)
+          sum))))
 
 (fn count-overlap [input]
   (accumulate [sum 0 _ pair (ipairs input)]
     (let [[first second] pair
           [first_i first_j] first
           [second_i second_j] second]
-      (if (or 
-              (> second_i first_j) (< second_j first_i))
-          sum (+ sum 1) ))))
+      (if (or (> second_i first_j) (< second_j first_i))
+          sum
+          (+ sum 1)))))
 
 (fn part-1 []
   (fennel.view (->> (read-input) (count-contained))))
