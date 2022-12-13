@@ -8,6 +8,7 @@
 (local six (require "solutions.6"))
 (local seven (require "solutions.7"))
 (local eight (require "solutions.8"))
+(local nine (require "solutions.9"))
 
 ; (print (.. "First day part one: " (one.part-1) ))
 ; (print (.. "First day part two: " (one.part-2) ))
@@ -31,5 +32,8 @@
 ; (print (.. "Seventh day part two: " (seven.part-2) ))
 
 ; (print (.. "Eigthth day part one: " (eight.part-1) ))
-(print (.. "Eigthth day part two: " (eight.part-2) ))
+; (print (.. "Eigthth day part two: " (eight.part-2) ))
+
+(print (.. "Ninth day part one: " (nine.part-1) ))
+; (print (.. "Ninth day part two: " (nine.part-2) ))
 
