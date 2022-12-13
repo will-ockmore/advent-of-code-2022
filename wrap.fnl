@@ -34,6 +34,6 @@
 ; (print (.. "Eigthth day part one: " (eight.part-1) ))
 ; (print (.. "Eigthth day part two: " (eight.part-2) ))
 
-(print (.. "Ninth day part one: " (nine.part-1) ))
-; (print (.. "Ninth day part two: " (nine.part-2) ))
+; (print (.. "Ninth day part one: " (nine.part-1) ))
+(print (.. "Ninth day part two: " (nine.part-2) ))
 
