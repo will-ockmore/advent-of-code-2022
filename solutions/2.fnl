@@ -54,14 +54,14 @@
         sum)))
 
 (fn get-turn [theirs required-result]
-  (do (print theirs required-result) (match [theirs required-result]
-     [first :draw] first
-     [:rock :win] :paper
-     [:rock :loss] :scissors
-     [:paper :win] :scissors
-     [:paper :loss] :rock
-     [:scissors :win] :rock
-     [:scissors :loss] :paper)))
+  (match [theirs required-result]
+    [first :draw] first
+    [:rock :win] :paper
+    [:rock :loss] :scissors
+    [:paper :win] :scissors
+    [:paper :loss] :rock
+    [:scissors :win] :rock
+    [:scissors :loss] :paper))
 
 (fn score-2 [turn]
   (let [(first second) (table.unpack turn)

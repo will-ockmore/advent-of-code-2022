@@ -37,7 +37,7 @@
 
 (fn run-moves [input] 
   (each [_ v (ipairs (. input :moves))]  (move (. input :stacks) (. v 1)))
-  input)
+  (. input :stacks))
 
 (fn move-2 [stacks move] 
   (var temp-stack [])
@@ -52,7 +52,7 @@
 
 (fn run-moves-2 [input] 
   (each [_ v (ipairs (. input :moves))]  (move-2 (. input :stacks) (. v 1)))
-  input)
+  (. input :stacks))
 
 (fn part-1 []
   (fennel.view (->> (read-input) (run-moves))))
