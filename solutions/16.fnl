@@ -18,57 +18,72 @@
     result))
 
 (fn floyd-warshall-shortest-paths [input]
-  (let [indicies (icollect [k _ (pairs input)] k)
-        graph (icollect [i _ (ipairs indicies)] (icollect [i _ (ipairs indicies)] math.inf) )]
-    graph))
+  (let [indicies (-> (icollect [k _ (pairs input)]
+                       k)
+                     (lume.sort))
+        index-map (accumulate [acc {} i k (ipairs indicies)]
+                    (do
+                      (tset acc k i)
+                      acc))
+        distances (icollect [i _ (ipairs indicies)]
+                    (icollect [i _ (ipairs indicies)]
+                      math.huge))]
+    (each [_ {: valves : valve} (pairs input)]
+      (let [i (. index-map valve)]
+        (each [_ v (ipairs valves)]
+          (let [j (. index-map v)]
+            (tset distances i j 1)))))
+    (each [i _ (ipairs indicies)]
+      (tset distances i i 0))
+    (each [i _ (ipairs distances)]
+      (each [j _ (ipairs distances)]
+        (each [k _ (ipairs distances)]
+          (let [direct (. distances i j)
+                indirect (+ (. distances i k) (. distances k j))]
+            (if (< indirect direct) (tset distances i j indirect))))))
+    (each [i v (ipairs indicies)]
+      (print (accumulate [s (.. v " ") _ d (ipairs (. distances i))]
+               (.. s " " (if (= d math.huge) "∞" d)))))
+    {: index-map : distances : input}))
 
+(fn get-eventual-pressure [input distances index-map path time]
+  (fn get-distance [start end]
+    (. distances (. index-map start) (. index-map end)))
 
+  (accumulate [acc {:pressure 0
+                    :time-remaining (- time (get-distance :AA (. path 1)))} i v (ipairs path) :until (< (. acc
+                                                                                                                              :time-remaining)
+                                                                                                                           1)]
+    (let [
+next-valve (?. path (+ i 1))
+          new-time (- (. acc :time-remaining) 1)
+          extra-pressure (* new-time (. input v :rate))
+          pressure (+ extra-pressure (. acc :pressure))
+          time-remaining (if next-valve (- new-time (get-distance v next-valve)) new-time)]
+      {: pressure : time-remaining})))
 
-(fn discover-paths [input]
-  (let [cache {}
-        nonzero-valves (-> (lume.filter input #(< 0 (. $1 :rate)))
-                           (lume.map :valve)
-                           (lume.sort)
-                           (fennel.view))]
-    (fn find-best-path [start mins-remaining activated-valves]
-      (let [{: rate : valves} (. input start)
-            already-activated (lume.find activated-valves start)
-            destinations valves]
-        ;; Base case - if one minute remaining, or all valves activated, nothing can be improved
-        (if (or (= (fennel.view (lume.sort activated-valves)) nonzero-valves)
-                (<= mins-remaining 1)) 0 
-            (let [paths (icollect [_ valve (ipairs destinations)]
-                          (let [cached (. cache
-                                          (fennel.view [valve
-                                                        (- mins-remaining 1) (lume.sort activated-valves)]))]
-                            (if cached cached
-                                (find-best-path valve (- mins-remaining 1)
-                                                activated-valves))))]
-              ;; Only try opening the valve if the rate is greater than zero and we have not already visited
-              (if (and (not (= rate 0)) (not already-activated))
-                  (each [_ valve (ipairs destinations)]
-                    (let [new-mins-remaining (- mins-remaining 2)
-                          pressure (* rate (- mins-remaining 1))
-                          cached (. cache
-                                    (fennel.view [valve new-mins-remaining (lume.sort activated-valves)]))
-                          best-path-after-open-valve (if cached cached
-                                                         (find-best-path valve
-                                                                         new-mins-remaining
-                                                                         (lume.concat activated-valves
-                                                                                      [start])))]
-                      (table.insert paths
-                                    (+ pressure best-path-after-open-valve)))))
-              ;; The best path is the one which maximises the flow rate
-              (let [best-path (accumulate [max 0 _ v (ipairs paths)]
-                                (if (< max v) v max))]
-                (tset cache (fennel.view [start mins-remaining (lume.sort activated-valves)]) best-path)
-                best-path)))))
+(fn discover-paths [{: index-map : distances : input}]
+  (let [valves-with-nonzero-rate (-> (lume.keys input)
+                                     (lume.filter #(< 0 (. input $1 :rate))))
+        permutations []]
+    (fn find-permutations [curr n]
+      (if (= n 0) (table.insert permutations curr)
+          (each [_ v (ipairs valves-with-nonzero-rate)]
+            (if (not (lume.find curr v))
+                (find-permutations (lume.concat curr [v]) (- n 1))))))
 
-    (find-best-path :AA 30 [])
-    ))
+    (find-permutations [] (length valves-with-nonzero-rate))
+    (icollect [_ path (ipairs permutations)]
+      (get-eventual-pressure input distances index-map path 30))))
+
+(fn find-best-pressure [paths]
+  (accumulate [max 0 _ {: pressure} (ipairs paths)]
+              (if (< max pressure) pressure max)
+              ))
 
 (fn part-1 []
-  (fennel.view (-> (read-input) (discover-paths))))
+  (fennel.view (-> (read-input) (floyd-warshall-shortest-paths)
+                   (discover-paths) (find-best-pressure))))
 
 (fn part-2 []
   (print :hi))
