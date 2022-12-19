@@ -62,6 +62,6 @@
 ; (print (.. "Fifteenth day part one: " (fifteen.part-1) ))
 ; (print (.. "Fifteenth day part two: " (fifteen.part-2) ))
 
-(print (.. "Sixteenth day part one: " (sixteen.part-1) ))
-; (print (.. "Sixteenth day part two: " (sixteen.part-2) ))
+; (print (.. "Sixteenth day part one: " (sixteen.part-1) ))
+(print (.. "Sixteenth day part two: " (sixteen.part-2) ))
 
