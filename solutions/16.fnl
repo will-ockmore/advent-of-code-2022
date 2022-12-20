@@ -54,7 +54,6 @@
         valve-masks (accumulate [masks {} i valve (ipairs valves-with-nonzero-rate)]
                       (lume.merge masks {valve (lshift 1 i)}))
         seen {}]
-    (var count 0)
     (fn traverse [current time-remaining pressure visited]
       (if (< (or (. seen (tostring visited)) 0) pressure)
           (tset seen (tostring visited) pressure))
@@ -68,10 +67,6 @@
 
     (traverse :AA minutes 0 0)
     seen))
-
-(fn find-best-pressure [paths]
-  (accumulate [max 0 _ {: pressure} (ipairs paths)]
-    (if (< max pressure) pressure max)))
 
 (fn find-best-pressure [paths]
   (accumulate [max 0 _ pressure (pairs paths)]
