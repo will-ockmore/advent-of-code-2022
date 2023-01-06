@@ -25,7 +25,7 @@
                [(bor (lshift 1 6) (lshift 1 5))
                 (bor (lshift 1 6) (lshift 1 5))]])
 
-(local should-print? true)
+(local should-print? false)
 
 (fn print-stack [stack shape shape-index]
   (os.execute "sleep 0.1")
@@ -38,7 +38,9 @@
             stack-row (or (. stack index) 0)]
         (tset newstack index (bor row stack-row))))
     (var row "")
-    (let [output (accumulate [s "" i v (ipairs (lume.slice newstack (- (length newstack) 30)))]
+    (let [output (accumulate [s "" i v (ipairs (lume.slice newstack
+                                                           (- (length newstack)
+                                                              30)))]
                    (do
                      (set row "|")
                      (for [n 2 8]
@@ -87,17 +89,18 @@
                 (let [index (+ shape-index (- i 1))
                       stack-row (or (. stack index) 0)]
                   (tset stack index (bor row stack-row)))))
-            (set shape-index (- shape-index 1))))) 
+            (set shape-index (- shape-index 1)))))
     (- (length stack) 1)))
 
 (fn simulate-2 [input iterations]
   ;; Return a list of heights per shape
   (var current-move 1)
+  (var cycle nil)
   (let [stack [(bor (lshift 1 8) (lshift 1 7) (lshift 1 6) (lshift 1 5)
                     (lshift 1 4) (lshift 1 3) (lshift 1 2))]
         heights []
-        ]
-    (for [i 1 iterations]
+        differentials []]
+    (for [i 1 math.huge :until cycle]
       (var stopped? false)
       (var shape (lume.clone (. shapes (+ 1 (% (- i 1) (length shapes))))))
       (var shape-index (+ 4 (length stack)))
@@ -132,15 +135,35 @@
                       stack-row (or (. stack index) 0)]
                   (tset stack index (bor row stack-row))))
               (table.insert heights (- (length stack) 1))
-              
-              )
-            (set shape-index (- shape-index 1))))) 
-    heights))
+              (let [checkpoint (- (length heights) 50)
+                    offset (or (. heights checkpoint) 0)
+                    hashed (fennel.view (icollect [_ v (ipairs (lume.slice heights
+                                                                           checkpoint))]
+                                          (- v offset)))
+                    previous-index (lume.find differentials hashed)]
+                (table.insert differentials hashed)
+                (if previous-index (set cycle [previous-index i]))))
+            (set shape-index (- shape-index 1)))))
+    ;; Calculate the height attained before the cycle
+    ;; The height gained per cycle
+    ;; The remaining iterations height
+    ;; and sum together
+    (let [[start end] cycle
+          pre-cycle-height (. heights start)
+          cycle-height (- (. heights end) (. heights start))
+          cycle-length (- end start)
+          window (- iterations start)
+          remainder (% window cycle-length)
+          n (// window cycle-length)
+          window-cycles-height (* cycle-height n)
+          remainder-height (- (. heights (+ start remainder)) pre-cycle-height)
+          total (+ pre-cycle-height window-cycles-height remainder-height)]
+      total)))
 
 (fn part-1 []
   (fennel.view (-> (read-input) (simulate 2022))))
 
 (fn part-2 [] ; (fennel.view (-> (read-input) (simulate 3))))
-  (fennel.view (-> (read-input) (simulate-2 (* 20 50455)))))
+  (fennel.view (-> (read-input) (simulate-2 1000000000000))))
 
-{: part-1 : part-2 }
+{: part-1 : part-2}
