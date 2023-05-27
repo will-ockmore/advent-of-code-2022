@@ -1,5 +1,7 @@
 (local fennel (require "lib.fennel"))
 
+(fn _G.pp [x] (print (fennel.view x)))
+
 (local one (require "solutions.1"))
 (local two (require "solutions.2"))
 (local three (require "solutions.3"))
@@ -17,6 +19,7 @@
 (local fifteen (require "solutions.15"))
 (local sixteen (require "solutions.16"))
 (local seventeen (require "solutions.17"))
+(local eighteen (require "solutions.18"))
 
 ; (print (.. "First day part one: " (one.part-1) ))
 ; (print (.. "First day part two: " (one.part-2) ))
@@ -67,5 +70,7 @@
 ; (print (.. "Sixteenth day part two: " (sixteen.part-2) ))
 
 ; (print (.. "Seventeenth day part one: " (seventeen.part-1) ))
-(print (.. "Seventeenth day part two: " (seventeen.part-2) ))
+; (print (.. "Seventeenth day part two: " (seventeen.part-2) ))
 
+(print (.. "eighteenth day part one: " (eighteen.part-1) ))
+(print (.. "Eighteenth day part two: " (eighteen.part-2) ))
